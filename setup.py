@@ -5,7 +5,7 @@ from setuptools import find_packages, setup
 
 
 setup(
-    name='InterpMCMC',
+    name='interpmcmc',
     version='0.0.0',
     license='MIT',
     description='Utitilitise for running MCMC on a potential defined by interpolation',
