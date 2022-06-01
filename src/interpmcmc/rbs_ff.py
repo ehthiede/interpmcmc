@@ -14,14 +14,16 @@ class InterpForceField(ForceField):
         return cls(rbs)
 
     def U(self, config):
-        x, y = config
+        x = config[..., 0]
+        y = config[..., 1]
         return self.rbs(x, y, grid=False)
 
     def F(self, config):
-        x, y = config
+        x = config[..., 0]
+        y = config[..., 1]
         f_x = -1 * self.rbs(x, y, grid=False, dx=1)
         f_y = -1 * self.rbs(x, y, grid=False, dy=1)
-        return np.array([f_x, f_y])
+        return np.stack([f_x, f_y], axis=-1)
 
 
 def build_padded_ax(dmn, npnts, pad_width):

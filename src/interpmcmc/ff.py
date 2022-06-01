@@ -29,7 +29,7 @@ class HarmonicPotential(ForceField):
             distance_vec = min_image(distance_vec, self.dmn_width)
 
         U_components = 0.5 * self.fk * (distance_vec**2)
-        return np.sum(U_components)
+        return np.sum(U_components, axis=-1)
 
     def F(self, config):
         distance_vec = config - self.center
@@ -44,7 +44,8 @@ class Compose(ForceField):
         self.ff_list = ff_list
 
     def U(self, config):
-        return np.sum([ff.U(config) for ff in self.ff_list])
+        return np.sum([ff.U(config) for ff in self.ff_list], axis=0)
 
     def F(self, config):
-        return np.sum([ff.F(config) for ff in self.ff_list])
+        # f_list = [ff.F(config) for ff in self.ff_list]
+        return np.sum([ff.F(config) for ff in self.ff_list], axis=0)

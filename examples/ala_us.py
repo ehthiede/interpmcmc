@@ -15,11 +15,11 @@ def _parse_CLAs():
             20 x 20 grid to sample.')
     parser.add_argument('--output', type=str, default=None, help='Where to \
             save the output of the simulation')
-    parser.add_argument('--nsteps', type=int, defaulte=1e5, help='How many \
+    parser.add_argument('--nsteps', type=int, default=1e5, help='How many \
             steps to run the calculation for')
-    parser.add_argument('--burnin', type=int, defaulte=1e3, help='Number of \
+    parser.add_argument('--burnin', type=int, default=1e3, help='Number of \
             steps to burn in the trajectory for.')
-    parser.add_argument('--dt', type=float, defaulte=1e-3, help='Overdamped \
+    parser.add_argument('--dt', type=float, default=1e-3, help='Overdamped \
             Langevin Timestep')
     return parser
 
@@ -27,7 +27,7 @@ def _parse_CLAs():
 def build_window_forcefield(pmf, domain, center, fk):
     unbiased_ff = InterpForceField.from_npy_pmf(pmf, domain)
     bias_fxn = HarmonicPotential(fk, center, domain=domain)
-    FF = Compose(unbiased_ff, bias_fxn)
+    FF = Compose([unbiased_ff, bias_fxn])
     return FF
 
 
@@ -66,5 +66,5 @@ def main():
     np.save(output_str, samples)
 
 
-if __name__ == "__main__"():
+if __name__ == "__main__":
     main()
