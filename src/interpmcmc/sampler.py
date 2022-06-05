@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def overdamped_langevin(cfg_0, force_function, periodicity_fxn=None,
+def overdamped_langevin(cfg_0, force_field, periodicity_fxn=None,
                         nsteps=1E5, burnin=100,
                         dt=0.001, kT=1.):
     """
@@ -23,15 +23,16 @@ def overdamped_langevin(cfg_0, force_function, periodicity_fxn=None,
         if periodicity_fxn is not None:
             cfg = periodicity_fxn(cfg)
         traj.append(np.copy(cfg))
-    return np.array(traj)[burnin:]
+    return np.array(traj)[int(burnin):]
 
 
-def metropolis(cfg_0, U_fxn, periodicity_fxn=None,
+def metropolis(cfg_0, force_field, periodicity_fxn=None,
                nsteps=1E5, burnin=100,
                dx=0.001, kT=1.):
     """
     Runs overdamped Langevin given a force function
     """
+    U_fxn = force_field.U
     cfg = cfg_0
     cfg_shape = cfg.shape
     traj = []
@@ -53,7 +54,7 @@ def metropolis(cfg_0, U_fxn, periodicity_fxn=None,
             U_old = U_new
 
         traj.append(np.copy(cfg))
-    return np.array(traj)[burnin:]
+    return np.array(traj)[int(burnin):]
 
 
 class PeriodicityEnforcer(object):
