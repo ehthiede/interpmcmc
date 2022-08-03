@@ -14,6 +14,8 @@ def _parse_CLAs():
             two-dimensional PMF to load from file')
     parser.add_argument('--replicate', type=int, default=0, help='index of \
             statistical replicate.')
+    parser.add_argument('--temp', type=float, default=None, help='Temperature\
+            if none, chosen so kT=1..')
     parser.add_argument('--num-windows', type=int, default=20, help='number of\
             windows to use')
     parser.add_argument('--force-constant', type=float, default=None, help='force\
@@ -36,13 +38,17 @@ def build_window_forcefield(pmf, domain, center, fk):
     return FF
 
 
-def define_windows(domain, L, fk=None):
+def define_windows(domain, L, fk=None, shift_centers_by_hw=False):
     """
     Defines the grid of umbrella sampling windows
     """
     hw = (domain[0][1] - domain[0][0])/L
-    centersx = np.linspace(domain[0][0]+hw/2, domain[0][1]-hw/2, L)
-    centersy = np.linspace(domain[1][0]+hw/2, domain[1][1]-hw/2, L)
+    if shift_centers_by_hw:
+        centersx = np.linspace(domain[0][0]+hw/2, domain[0][1]-hw/2, L)
+        centersy = np.linspace(domain[1][0]+hw/2, domain[1][1]-hw/2, L)
+    else:
+        centersx = np.linspace(domain[0][0], domain[0][1], L,endpoint=False)
+        centersy = np.linspace(domain[1][0], domain[1][1], L,endpoint=False)
     centers = construct_centers_on_grid(centersx, centersy)
     if fk is None:
         fk = fk_from_stdev(hw / 2.)
@@ -55,6 +61,12 @@ def main():
     args = parser.parse_args()
 
     # Load raw PMF and define metadata
+    T = args.temp
+    if T is None:
+        kT = 1.
+    else:
+        k_B =  8.314462618E-3
+        kT = k_B * T
     ala_pmf = np.load(args.pmf)
     domain = np.array([[-np.pi, np.pi], [-np.pi, np.pi]])
     print(args.force_constant, 'args.fc')
@@ -73,7 +85,7 @@ def main():
         PBC = PeriodicityEnforcer(domain)
 
         samples = metropolis(center_i, FF, PBC, nsteps=args.nsteps,
-                             dx=args.dx, burnin=args.burnin)
+                             dx=args.dx, burnin=args.burnin, kT=kT)
         all_trajs.append(samples)
 
     np.save(output_str, all_trajs)
